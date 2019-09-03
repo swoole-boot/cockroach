@@ -1,0 +1,32 @@
+{
+  "name":"jhq0113/cockroach",
+  "description": "cockroach",
+  "keywords": ["cockroach","php"],
+  "license": "MIT",
+  "homepage":"https://github.com/jhq0113/cockroach",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Jiang Haiqiang",
+      "email": "jhq0113@163.com",
+      "homepage": "https://github.com/jhq0113",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^7.0",
+    "ext-curl": "*",
+    "ext-mbstring": "*",
+    "ext-bcmath": "*",
+    "ext-igbinary": "*",
+    "ext-msgpack": "*",
+    "ext-json": "*"
+  },
+  "require-dev": {
+  },
+  "autoload": {
+    "psr-4": {
+      "cockroach\\": "src/"
+    }
+  }
+}
