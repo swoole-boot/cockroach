@@ -1,15 +1,21 @@
 {
-  "name":"jhq0113/cockroach",
+  "name":"cockroach/cockroach",
   "description": "cockroach",
   "keywords": ["cockroach","php"],
   "license": "MIT",
-  "homepage":"https://github.com/jhq0113/cockroach",
+  "homepage":"https://github.com/swoole-boot/cockroach",
   "type": "library",
   "authors": [
     {
       "name": "Jiang Haiqiang",
       "email": "jhq0113@163.com",
       "homepage": "https://github.com/jhq0113",
+      "role": "Owner"
+    },
+    {
+      "name": "Yan Jingwen",
+      "email": "18636002809@163.com",
+      "homepage": "https://github.com/wandeCat",
       "role": "Developer"
     }
   ],
