@@ -64,4 +64,27 @@ class EString
     {
         return uniqid($prefix).'_'.self::createRandStr(5,'abcde123456789');
     }
+
+    /**
+     * @var string
+     * @datetime 2019/9/10 13:37
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    private static $_requsetId;
+
+    /**
+     * @param string $prefix
+     * @return string
+     * @datetime 2019/9/10 13:38
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    static public function requestId($prefix='')
+    {
+        if(!self::$_requsetId) {
+            self::$_requsetId = static::createTraceId($prefix);
+        }
+        return self::$_requsetId;
+    }
 }
