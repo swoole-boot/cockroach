@@ -41,6 +41,29 @@ class SwooleBoot extends Package
      */
     public $headerPackFormat   = "NCa32a19a13";
 
+    /**按指定序列化方式封包
+     * @param mixed  $params
+     * @param string $serializeId
+     * @return string
+     * @datetime 2019/9/12 13:48
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function packBySerializeId($params,$serializeId)
+    {
+        $body = $this->serialize($serializeId,$params);
+
+        $header = [
+            strlen($body),
+            $serializeId,
+            md5($body),
+            date('Y-m-d H:i:s'),
+            str_repeat('1',13)
+        ];
+
+        return $this->packHeader($header).$body;
+    }
+
     /**封包
      * @param mixed $params
      * @return string
