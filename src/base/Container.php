@@ -79,10 +79,10 @@ class Container extends Extension
 
         $object = new $class();
 
-        static::assem($object,$config);
-
         if(method_exists($object,'init')) {
-            $object->init();
+            $object->init($config);
+        }else {
+            static::assem($object,$config);
         }
 
         return $object;
@@ -91,7 +91,7 @@ class Container extends Extension
     /**如果是对象配置则创建，否则原样返回
      * @param array  $config
      * @param string $defaultClass
-     * @return array|mixed
+     * @return mixed | array
      * @datetime 2019/8/30 15:57
      * @author roach
      * @email jhq0113@163.com
