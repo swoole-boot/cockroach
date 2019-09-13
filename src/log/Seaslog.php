@@ -42,6 +42,17 @@ class Seaslog extends Driver
     }
 
     /**
+     * @param string $requestId
+     * @datetime 2019/9/13 14:49
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function setRequestId($requestId)
+    {
+        \SeasLog::setRequestID($requestId);
+    }
+
+    /**
      * @datetime 2019/9/10 13:31
      * @author roach
      * @email jhq0113@163.com

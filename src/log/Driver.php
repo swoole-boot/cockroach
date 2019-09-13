@@ -44,6 +44,25 @@ abstract class Driver extends Cockroach implements ILog
      */
     public $level = 8;
 
+    /**
+     * @var string
+     * @datetime 2019/9/13 14:50
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    protected $_requestId;
+
+    /**
+     * @param string $requestId
+     * @datetime 2019/9/13 14:49
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function setRequestId($requestId)
+    {
+        $this->_requestId = $requestId;
+    }
+
     /**系统不可用
      * @param string $message
      * @param array  $context
