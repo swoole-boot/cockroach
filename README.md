@@ -17,4 +17,4 @@
 }
 ```
 
-[composer地址](https://packagist.org/packages/jhq0113/cockroach)
+[composer地址](https://packagist.org/packages/cockroach/cockroach)
