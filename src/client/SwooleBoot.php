@@ -33,8 +33,9 @@ class SwooleBoot extends Socket
     public function init($config = [])
     {
         parent::init($config);
-
-        //$this->packager = Container::insure($this->packager);
+        if(!isset($config['packager'])) {
+            $this->packager = Container::insure($this->packager);
+        }
     }
 
     /**
