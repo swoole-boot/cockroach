@@ -1,5 +1,6 @@
 # cockroach 蟑螂
 
+# [依赖软件包地址](https://github.com/swoole-boot/soft)
 
 # 1.打不死的蟑螂
 
