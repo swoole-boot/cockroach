@@ -31,6 +31,7 @@ class Yac extends Cache
         }
 
         $this->_client = new \Yac('');
+        return $this->_client;
     }
 
     /**
@@ -42,7 +43,13 @@ class Yac extends Cache
      */
     protected function _getValue($key)
     {
-        return $this->_client->get($key);
+        $value = $this->_client()->get($key);
+
+        if($value === false) {
+            return null;
+        }
+
+        return $value;
     }
 
     /**
@@ -54,7 +61,7 @@ class Yac extends Cache
      */
     protected function _mget($key1)
     {
-        return $this->_client->get(func_get_args());
+        return $this->_client()->get(func_get_args());
     }
 
     /**
@@ -66,9 +73,9 @@ class Yac extends Cache
      */
     protected function _exists($key)
     {
-        $value = $this->_client->get($key);
+        $value = $this->_client()->get($key);
 
-        return !is_null($value);
+        return $value !== false;
     }
 
     /**
@@ -80,15 +87,14 @@ class Yac extends Cache
      */
     protected function _delete($key1)
     {
-        $this->_client->delete(func_get_args());
-        return true;
+        return $this->_client()->delete(func_get_args());
     }
 
     /**
      * @param string $key
      * @param string $value
      * @param int    $timeout
-     * @return bool|mixed
+     * @return bool
      * @datetime 2019/9/16 14:33
      * @author roach
      * @email jhq0113@163.com
@@ -96,12 +102,31 @@ class Yac extends Cache
     protected function _saveValue($key, $value,$timeout)
     {
         if($timeout == 0) {
-            $this->_client->set($key,$value);
-            return true;
+            return $this->_client()->set($key,$value);
         }
 
-        $this->_client->set($key,$value,$timeout);
+        return $this->_client()->set($key,$value,$timeout);
+    }
 
-        return true;
+    /**
+     * @return bool
+     * @datetime 2019/9/16 15:41
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    protected function _flush()
+    {
+        return $this->_client()->flush();
+    }
+
+    /**
+     * @return array
+     * @datetime 2019/9/16 15:41
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function info()
+    {
+        return $this->_client()->info();
     }
 }

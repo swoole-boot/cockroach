@@ -107,9 +107,10 @@ abstract class Cache extends Cockroach implements ICacheItemPool
         $item = $this->_createCache($key);
 
         $valueItem = $this->_getValue($item->getKey());
-
+        
         $item->assem([
-            '_value' => $this->_unserialize($valueItem)
+            '_value' => $this->_unserialize($valueItem),
+            '_isHit' => !is_null($valueItem)
         ]);
 
         return $item;
@@ -139,7 +140,8 @@ abstract class Cache extends Cockroach implements ICacheItemPool
             $hashKey = $item->getKey();
             if(isset($valueList[ $hashKey ])) {
                 $items[ $key ] = $item->assem([
-                    '_value' => $this->_unserialize($valueList[ $hashKey ])
+                    '_value' => $this->_unserialize($valueList[ $hashKey ]),
+                    '_isHit' => !is_null($valueList[ $hashKey ])
                 ]);
             }
         }
@@ -168,7 +170,7 @@ abstract class Cache extends Cockroach implements ICacheItemPool
      */
     public function clear()
     {
-        throw new Exception('sorry, not support!');
+        return $this->_flush();
     }
 
     /**
@@ -212,15 +214,23 @@ abstract class Cache extends Cockroach implements ICacheItemPool
     }
 
     /**入栈
-     * @param ICacheItem $item
+     * @param ICacheItem $item1
+     * @param ICacheItem $item2
+     * @param ICacheItem $itemN
      * @return bool
      * @datetime 2019/9/16 13:18
      * @author roach
      * @email jhq0113@163.com
      */
-    public function saveDeferred(ICacheItem $item)
+    public function saveDeferred(ICacheItem $item1)
     {
-        $this->_itemStack->push($item);
+        array_map(function($item){
+            $isPush = $this->_itemStack->push($item);
+            if(!$isPush) {
+                return false;
+            }
+        },func_get_args());
+
         return true;
     }
 
@@ -296,4 +306,12 @@ abstract class Cache extends Cockroach implements ICacheItemPool
      * @email jhq0113@163.com
      */
     abstract protected function _saveValue($key,$value,$timeout);
+
+    /**
+     * @return bool
+     * @datetime 2019/9/16 15:40
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    abstract protected function _flush();
 }
