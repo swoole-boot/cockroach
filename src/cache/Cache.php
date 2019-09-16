@@ -136,15 +136,15 @@ abstract class Cache extends Cockroach implements ICacheItemPool
 
         $valueList = call_user_func_array([$this,'_mget'],$hashKeys);
 
-        foreach ($items as $key => $item) {
+        array_walk($items,function(&$item, $key) use ($valueList){
             $hashKey = $item->getKey();
             if(isset($valueList[ $hashKey ])) {
-                $items[ $key ] = $item->assem([
+                $item->assem([
                     '_value' => $this->_unserialize($valueList[ $hashKey ]),
                     '_isHit' => !is_null($valueList[ $hashKey ])
                 ]);
             }
-        }
+        });
 
         return $items;
     }
