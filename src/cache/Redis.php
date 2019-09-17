@@ -2,6 +2,7 @@
 namespace cockroach\cache;
 
 use cockroach\exceptions\Exception;
+use cockroach\extensions\EString;
 use cockroach\extensions\EUpstream;
 
 /**
@@ -29,6 +30,26 @@ class Redis extends Cache
      * @email jhq0113@163.com
      */
     protected $_client;
+
+    /**
+     * @var \Redis
+     * @datetime 2019/9/17 9:48
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    protected $_multi;
+
+    /**
+     * Lua释放锁脚本
+     */
+    const UNLOCK_SCRIPT = <<<LUA
+            if redis.call('get', KEYS[1]) == ARGV[1]
+            then
+                return redis.call('del', KEYS[1])
+            end
+            return 0
+LUA;
+
 
     /**
      * @return \Redis|null
@@ -72,6 +93,87 @@ class Redis extends Cache
         return $this->_client;
     }
 
+    /***管道与事务支持，默认为管道
+     * @param int $mode
+     * @return \Redis|void
+     * @datetime 2019/9/17 10:18
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function multi($mode=\Redis::PIPELINE)
+    {
+        $this->_multi = $this->_client()->multi($mode);
+        return $this->_multi;
+    }
+
+    /**提交管道或事务
+     * @return array
+     * @datetime 2019/9/17 10:19
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function exec()
+    {
+        $result = $this->_multi->exec();
+        $this->_multi = null;
+        return $result;
+    }
+
+    /**动态调用，支持redis原生指令
+     * @param string $method
+     * @param array  $params
+     * @return mixed
+     * @datetime 2019/9/17 9:52
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function call($method, $params)
+    {
+        $redis = is_null($this->_multi) ? $this->_client() : $this->_multi;
+        return call_user_func_array([$redis, $method],$params);
+    }
+
+    /**加锁
+     * @param string      $key
+     * @param int         $timeout
+     * @param \Redis|null $redis
+     * @return bool|string
+     * @datetime 2019/9/17 10:37
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function lock($key,$timeout = 8,\Redis $redis = null)
+    {
+        $redis = is_null($redis) ? $this->_client() : $redis;
+
+        //创建token
+        $token = uniqid().EString::createRandStr(5);
+
+        $isLock = $redis->set($key,$token,['NX','EX' => $timeout]);
+        if(!$isLock) {
+            return false;
+        }
+
+        return $token;
+    }
+
+    /**释放锁
+     * @param string $key
+     * @param string $token
+     * @param \Redis|null $redis
+     * @return mixed|void
+     * @datetime 2019/9/17 10:45
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function unlock($key,$token,\Redis $redis = null)
+    {
+        $redis = is_null($redis) ? $this->_client() : $redis;
+
+        $hash = $redis->script('load',self::UNLOCK_SCRIPT);
+        return $redis->evalSha($hash,[ $key, $token ],1);
+    }
+
     /**
      * @param string $key
      * @return string
@@ -81,6 +183,10 @@ class Redis extends Cache
      */
     protected function _getValue($key)
     {
+        if(!is_null($this->_multi)) {
+            return $this->_multi->get($key);
+        }
+
         $value = $this->_client()->get($key);
         if($value === false) {
             return null;
@@ -99,6 +205,11 @@ class Redis extends Cache
     protected function _mget($key1)
     {
         $args = func_get_args();
+
+        if(!is_null($this->_multi)) {
+            return $this->_multi->mget($args);
+        }
+
         $values = $this->_client()->mget($args);
         return array_combine($args,$values);
     }
@@ -112,7 +223,7 @@ class Redis extends Cache
      */
     protected function _exists($key)
     {
-        return $this->_client()->exists($key);
+        return $this->call('exists',[ $key ]);
     }
 
     /**
@@ -124,7 +235,7 @@ class Redis extends Cache
      */
     protected function _delete($key1)
     {
-        return call_user_func_array([ $this->_client(), 'delete' ],func_get_args());
+        return $this->call('delete', func_get_args());
     }
 
     /**
@@ -139,9 +250,9 @@ class Redis extends Cache
     protected function _saveValue($key, $value, $timeout)
     {
         if($timeout == 0) {
-            return $this->_client()->set($key,$value);
+            return $this->call('set',[ $key, $value]);
         }
-        return $this->_client()->set($key,$value,$timeout);
+        return $this->call('set',[ $key, $value, $timeout]);
     }
 
     /**
@@ -154,5 +265,31 @@ class Redis extends Cache
     protected function _flush()
     {
         throw new Exception("I'm sorry! have not supported");
+    }
+
+    /**使用\Redis的PIPELINE提交
+     * @return bool
+     * @datetime 2019/9/16 13:31
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function commit()
+    {
+        if($this->_itemStack->isEmpty()) {
+            return true;
+        }
+
+        //开启管道
+        $this->multi();
+
+        while(!$this->_itemStack->isEmpty()){
+            $this->save($this->_itemStack->pop());
+        }
+
+        //提交管道
+        $result = $this->exec();
+        $unique = array_unique($result);
+
+        return count($unique) == 1 && $unique[0] === true;
     }
 }
