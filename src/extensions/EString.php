@@ -99,6 +99,6 @@ class EString
      */
     static public function repeatAndTrim($str, $num, $glue = ',')
     {
-        return rtrim(str_repeat($str.$glue,$num),$glue);
+        return rtrim(str_repeat($str,$num),$glue);
     }
 }
