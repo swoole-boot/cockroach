@@ -97,7 +97,7 @@ class EString
      * @author roach
      * @email jhq0113@163.com
      */
-    static public function repeatAndTrim($str, $num, $glue = ',')
+    static public function repeatAndRTrim($str, $num, $glue = ',')
     {
         return rtrim(str_repeat($str,$num),$glue);
     }
