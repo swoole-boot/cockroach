@@ -87,4 +87,18 @@ class EString
         }
         return self::$_requsetId;
     }
+
+    /**
+     * @param string $str
+     * @param int    $num
+     * @param string $glue
+     * @return string
+     * @datetime 2019/9/17 10:11 PM
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    static public function repeatAndTrim($str, $num, $glue = ',')
+    {
+        return rtrim(str_repeat($str.$glue,$num),$glue);
+    }
 }
