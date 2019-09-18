@@ -211,7 +211,7 @@ class Query extends Cockroach
             foreach ($where as $field => $value) {
                 $operator = '=';
                 if(strpos($field,' ') > 0) {
-                    list($field,$operator) = explode(' ',$field,1);
+                    list($field,$operator) = explode(' ',$field,2);
                 }
 
                 //绑参
@@ -233,6 +233,9 @@ class Query extends Cockroach
                         break;
                     case 'BETWEEN':
                         $subWhere = $field.' BETWEEN ? AND ? ';
+                        break;
+                    case 'LIKE':
+                        $subWhere = $field.' '.$operator.' ?';
                         break;
                     default:
                         $subWhere = $field.' '.$operator.'?';
