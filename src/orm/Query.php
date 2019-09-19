@@ -273,7 +273,9 @@ class Query extends Cockroach
     {
         $this->_params = [];
 
-        if(is_array($this->_select)) {
+        if(empty($this->_select)){
+            $fields = '*';
+        } elseif(is_array($this->_select)) {
             $fields = implode(',', array_map(function($field){
                 return static::formatField($field);
             },$this->_select));
@@ -282,7 +284,7 @@ class Query extends Cockroach
         }
 
         $group = '';
-        if(isset($this->_group)) {
+        if(!empty($this->_group)) {
             if(is_array($this->_group)) {
                 $group = ' GROUP BY '.implode(',', array_map(function($field){
                     return static::formatField($field);
@@ -293,7 +295,7 @@ class Query extends Cockroach
         }
 
         $order = '';
-        if(isset($this->_order)) {
+        if(!empty($this->_order)) {
             if(is_array($this->_order)) {
                 $orderArr = [];
                 foreach ($this->_order as $key => $value ) {
