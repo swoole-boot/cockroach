@@ -342,9 +342,8 @@ class Query extends Cockroach
         $placeHolder = '('.EString::repeatAndRTrim('?,',count($rows[0])).')';
         $placeHolder = EString::repeatAndRTrim($placeHolder.',',count($rows));
 
-        $params       = is_null($params) ? [] : $params;
         foreach ($rows as $row) {
-            array_merge($params,array_values($row));
+            $params = array_merge($params,array_values($row));
         }
 
         return 'INSERT '.($ignore ? 'IGNORE' :'').' INTO '.static::formatField($table).'('.implode(',',$fields).')VALUES'.$placeHolder;
@@ -363,8 +362,6 @@ class Query extends Cockroach
      */
     static public function updateAll($table,$set, $where, &$params = [], $isOr = false)
     {
-        $params = is_null($params) ? [] : $params;
-
         if(is_array($set)) {
             $sets = [];
             foreach ($set as $field => $value) {
@@ -389,7 +386,6 @@ class Query extends Cockroach
      */
     static public function deleteAll($table, $where, &$params = [], $isOr = false)
     {
-        $params = is_null($params) ? [] : $params;
         return 'DELETE FROM '.static::formatField($table).static::analyWhere($where,$params, $isOr);
     }
 }

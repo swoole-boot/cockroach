@@ -50,7 +50,7 @@ class EReturn
      * @author roach
      * @email jhq0113@163.com
      */
-    static public function success($data)
+    static public function success($data = [])
     {
         return self::error('success',self::SUCCESS,$data);
     }
