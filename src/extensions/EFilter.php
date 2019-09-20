@@ -12,6 +12,10 @@ use cockroach\base\Extension;
  */
 class EFilter extends Extension
 {
+    const TYPE_STRING = 'Str';
+    const TYPE_INT    = 'Int';
+    const TYPE_FLOAT  = 'Float';
+
     /**过滤字符串参数
      * @param string $key            键
      * @param array  $data          数据数组

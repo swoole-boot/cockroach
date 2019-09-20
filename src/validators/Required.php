@@ -12,6 +12,14 @@ class Required extends Driver
 {
     /**
      * @var bool
+     * @datetime 2019/9/20 21:29
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public $require = true;
+
+    /**
+     * @var bool
      * @datetime 2019/8/31 11:58 AM
      * @author roach
      * @email jhq0113@163.com
@@ -25,9 +33,15 @@ class Required extends Driver
      * @author roach
      * @email jhq0113@163.com
      */
-    public function validate($value = null)
+
+    public function validate($field, &$params = [])
     {
-        return $this->_validate($value);
+        if(!isset($params[ $field ])) {
+            return false;
+        }
+
+        $params[ $field ] = call_user_func('cockroach\extensions\EFilter::f'.$this->type, $field, $params, $this->default);
+        return $this->_validate($params[ $field ]);
     }
 
     /**
