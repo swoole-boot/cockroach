@@ -273,7 +273,9 @@ class Query extends Cockroach
     {
         $this->_params = [];
 
-        if(is_array($this->_select)) {
+        if(empty($this->_select)){
+            $fields = '*';
+        } elseif(is_array($this->_select)) {
             $fields = implode(',', array_map(function($field){
                 return static::formatField($field);
             },$this->_select));
@@ -282,7 +284,7 @@ class Query extends Cockroach
         }
 
         $group = '';
-        if(isset($this->_group)) {
+        if(!empty($this->_group)) {
             if(is_array($this->_group)) {
                 $group = ' GROUP BY '.implode(',', array_map(function($field){
                     return static::formatField($field);
@@ -293,7 +295,7 @@ class Query extends Cockroach
         }
 
         $order = '';
-        if(isset($this->_order)) {
+        if(!empty($this->_order)) {
             if(is_array($this->_order)) {
                 $orderArr = [];
                 foreach ($this->_order as $key => $value ) {
@@ -340,9 +342,8 @@ class Query extends Cockroach
         $placeHolder = '('.EString::repeatAndRTrim('?,',count($rows[0])).')';
         $placeHolder = EString::repeatAndRTrim($placeHolder.',',count($rows));
 
-        $params       = is_null($params) ? [] : $params;
         foreach ($rows as $row) {
-            array_merge($params,array_values($row));
+            $params = array_merge($params,array_values($row));
         }
 
         return 'INSERT '.($ignore ? 'IGNORE' :'').' INTO '.static::formatField($table).'('.implode(',',$fields).')VALUES'.$placeHolder;
@@ -361,8 +362,6 @@ class Query extends Cockroach
      */
     static public function updateAll($table,$set, $where, &$params = [], $isOr = false)
     {
-        $params = is_null($params) ? [] : $params;
-
         if(is_array($set)) {
             $sets = [];
             foreach ($set as $field => $value) {
@@ -387,7 +386,6 @@ class Query extends Cockroach
      */
     static public function deleteAll($table, $where, &$params = [], $isOr = false)
     {
-        $params = is_null($params) ? [] : $params;
         return 'DELETE FROM '.static::formatField($table).static::analyWhere($where,$params, $isOr);
     }
 }
