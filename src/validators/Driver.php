@@ -12,6 +12,10 @@ use cockroach\base\Cockroach;
  */
 abstract class Driver extends Cockroach
 {
+    const TYPE_STRING = '1';
+    const TYPE_INT    = '2';
+    const TYPE_FLOAT  = '3';
+
     /**
      * @var string
      * @datetime 2019/8/31 11:11 AM
@@ -28,6 +32,22 @@ abstract class Driver extends Cockroach
      */
     public $allowNull = false;
 
+    /**默认值
+     * @var
+     * @datetime 2019/9/20 13:20
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public $default = null;
+
+    /**数据类型
+     * @var string
+     * @datetime 2019/9/20 13:21
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public $type = self::TYPE_STRING;
+
     /**验证
      * @param mixed $value
      * @return bool
@@ -35,7 +55,7 @@ abstract class Driver extends Cockroach
      * @author roach
      * @email jhq0113@163.com
      */
-    public function validate($value = null)
+    public function validate($field, &$params = [])
     {
         if(is_null($value)) {
             return $this->allowNull;

@@ -35,7 +35,7 @@ class EValidate extends Extension
      * @author roach
      * @email jhq0113@163.com
      */
-    static public function rule($rule,array $params= [])
+    static public function rule($rule,array &$params= [])
     {
         $fields = $rule[0];
         $rule['class'] = $rule[1] ;
@@ -72,7 +72,7 @@ class EValidate extends Extension
      * @author roach
      * @email jhq0113@163.com
      */
-    static public function rules($rules,array $params = [])
+    static public function rules($rules,array &$params = [])
     {
         $errors = [];
 
