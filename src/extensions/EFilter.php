@@ -43,7 +43,7 @@ class EFilter extends Extension
      * @author roach
      * @email jhq0113@163.com
      */
-    static public function FString($key, $data, $defaultValue = '')
+    static public function fString($key, $data, $defaultValue = '')
     {
         if(!isset($data[ $key ])) {
             return $defaultValue;
