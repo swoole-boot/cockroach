@@ -12,7 +12,8 @@ use cockroach\base\Extension;
  */
 class EFilter extends Extension
 {
-    const TYPE_STRING = 'Str';
+    const TYPE_STR    = 'Str';
+    const TYPE_STRING = 'String';
     const TYPE_INT    = 'Int';
     const TYPE_FLOAT  = 'Float';
 
@@ -31,6 +32,24 @@ class EFilter extends Extension
             return $defaultValue;
         }
         return addslashes(trim($data[ $key ]));
+    }
+
+    /**
+     * @param string $key
+     * @param array  $data
+     * @param string $defaultValue
+     * @return string
+     * @datetime 2019/9/22 11:08 PM
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    static public function FString($key, $data, $defaultValue = '')
+    {
+        if(!isset($data[ $key ])) {
+            return $defaultValue;
+        }
+
+        return trim($data[ $key ]);
     }
 
     /**过滤int参数

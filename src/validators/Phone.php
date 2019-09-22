@@ -1,6 +1,8 @@
 <?php
 namespace cockroach\validators;
 
+use cockroach\extensions\EFilter;
+
 /**
  * Class Phone
  * @package cockroach\validators
@@ -10,6 +12,14 @@ namespace cockroach\validators;
  */
 class Phone extends Pattern
 {
+    /**数据类型
+     * @var string
+     * @datetime 2019/9/20 13:21
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public $type = EFilter::TYPE_INT;
+
     /**
      * @var string
      * @datetime 2019/8/31 12:09 PM
