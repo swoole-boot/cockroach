@@ -67,6 +67,8 @@ class Client extends Cockroach
 
         $response = EHttp::request($method,$url,$params,$header);
 
+        \cockroach\extensions\EFile::write('/tmp/logs/regis.log',json_encode($response).PHP_EOL);
+
         if($response['info']['http_code'] === 0 && !empty($this->standbyNode)) {
             $url = $this->standbyNode.$path;
             $response = EHttp::request($method,$url,$params,$header);
