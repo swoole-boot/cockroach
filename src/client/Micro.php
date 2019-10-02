@@ -103,7 +103,8 @@ class Micro extends Cockroach
      */
     protected $_defaultProtocolList = [
       'swoole-boot' => [
-          'class' => 'cockroach\client\SwooleBoot'
+          'class'       => 'cockroach\client\SwooleBoot',
+          'serializeId' => '2'
       ]
     ];
 
