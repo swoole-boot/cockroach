@@ -125,14 +125,6 @@ class Micro extends Cockroach
      */
     public $useWan = false;
 
-    /**调用前校验func是否存在
-     * @var bool
-     * @datetime 2019/10/2 11:14 AM
-     * @author roach
-     * @email jhq0113@163.com
-     */
-    public $validateFunc = true;
-
     /**
      * @var array
      * @datetime 2019/10/2 10:49 AM
@@ -209,21 +201,23 @@ class Micro extends Cockroach
     }
 
     /**
-     * @param string $func
+     * @param string $funcName
      * @param array  $params
      * @return mixed
      * @throws ConfigException
      * @throws RuntimeException
-     * @datetime 2019/10/2 11:15 AM
+     * @datetime 2019/10/2 12:13 PM
      * @author roach
      * @email jhq0113@163.com
      */
-    public function call($func,$params = [])
+    public function call($funcName,$params = [])
     {
-        if($this->validateFunc && !isset($this->funcs[ $func ])) {
-            throw new RuntimeException("函数[{$func}]未注册");
+        $client = $this->_client();
+
+        if(!isset($this->funcs[ $funcName ]['route'])) {
+            throw new RuntimeException("函数[{$funcName}]未注册");
         }
 
-        return $this->_client()->call($func, $params);
+        return $client->call($this->funcs[ $funcName ]['route'], $params);
     }
 }
