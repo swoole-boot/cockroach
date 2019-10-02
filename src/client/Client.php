@@ -28,6 +28,14 @@ abstract class Client extends Cockroach
      */
     public $port;
 
+    /**路径
+     * @var string
+     * @datetime 2019/10/2 11:11 AM
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public $path = '';
+
     /**
      * @var int
      * @datetime 2019/9/13 16:50
