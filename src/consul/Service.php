@@ -20,6 +20,22 @@ class Service
      */
     public $id = '';
 
+    /**内网
+     * @var string
+     * @datetime 2019/9/26 16:32
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public $lan;
+
+    /**外网
+     * @var string
+     * @datetime 2019/9/26 16:32
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public $wan;
+
     /**数据中心
      * @var string $dataCenter
      * @datetime 2019/8/31 1:09 PM
@@ -51,7 +67,17 @@ class Service
      * @email jhq0113@163.com
      */
     public $nodeMeta = [
-        'cock_regisTool' => 'cockroach'
+        'regisTool' => 'cockroach'
+    ];
+
+    /**服务meta
+     * @var array
+     * @datetime 2019/9/26 16:26
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public $serviceMeta = [
+        'regisTool' => 'cockroach'
     ];
 
     /**服务id
@@ -104,16 +130,6 @@ class Service
      * @email jhq0113@163.com
      */
     public $servicePort;
-
-    /**服务meta
-     * @var array
-     * @datetime 2019/8/31 1:13 PM
-     * @author roach
-     * @email jhq0113@163.com
-     */
-    public $serviceMeta = [
-        'cock_regisTool' => 'cockroach'
-    ];
 
     /**
      * @var bool
@@ -175,45 +191,26 @@ class Service
             'Datacenter'        =>  $this->dataCenter,
             'Node'              =>  $this->node,
             'Address'           =>  $this->address,
+            'TaggedAddresses'   => [
+                'lan' => $this->lan,
+                'wan' => $this->wan
+            ],
             'NodeMeta'          => $this->nodeMeta,
             'Service'           => [
                 'Id'        => $this->getServiceId(),
                 'Service'   => $this->serviceName,
-                'tags'      => $this->tags,
+                'Tags'      => $this->tags,
                 'Address'   => $this->serviceAddress ?: $this->address ,
                 'Port'      => $this->servicePort,
                 'Meta'      => $this->serviceMeta
             ],
-            'Check' => array_merge([
-                'Node'          => $this->node,
-                'ServiceID'     => $this->serviceId
-            ],$this->check),
+            'Check' =>
+                array_merge([
+                    'Node'          => $this->node,
+                    'ServiceID'     => $this->getServiceId()
+                ], $this->check)
+            ,
             'SkipNodeUpdate' => $this->skipNodeUpdate
         ];
-    }
-
-    /**
-     * @param array $config
-     * @return $this
-     * @datetime 2019/8/31 1:12 PM
-     * @author roach
-     * @email jhq0113@163.com
-     */
-    public function blockByArray(array $config)
-    {
-        $this->id               = $config['ID'];
-        $this->node             = $config['Node'];
-        $this->address          = $config['Address'];
-        $this->dataCenter       = $config['Datacenter'];
-        $this->nodeMeta         = $config['NodeMeta'];
-        $this->serviceId        = $config['ServiceID'];
-        $this->serviceName      = $config['ServiceName'];
-        $this->tags             = $config['ServiceTags'];
-        $this->serviceAddress   = $config['ServiceAddress'];
-        $this->serviceMeta      = $config['ServiceMeta'];
-        $this->servicePort      = $config['ServicePort'];
-        $this->skipNodeUpdate   = $config['ServiceEnableTagOverride'];
-
-        return $this;
     }
 }

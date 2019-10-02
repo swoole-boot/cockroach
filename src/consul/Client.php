@@ -91,7 +91,7 @@ class Client extends Cockroach
 
         $service->ensureAttribute();
 
-        $response = $this->request('put','/v1/catalog/register',json_encode($service->toArray(),true));
+        $response = $this->request('put','/v1/catalog/register',json_encode($service->toArray()));
 
         return EHttp::requestSuccess($response) && $response['body'] === 'true';
     }
@@ -113,7 +113,7 @@ class Client extends Cockroach
             'ServiceID'     =>  $serviceId,
         ];
 
-        $response = $this->request('put','/v1/catalog/deregister',json_encode($params,true));
+        $response = $this->request('put','/v1/catalog/deregister',json_encode($params));
 
         return EHttp::requestSuccess($response) && $response['body'] === 'true';
     }
