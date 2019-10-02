@@ -13,6 +13,7 @@ use cockroach\base\Container;
 use cockroach\exceptions\ConfigException;
 use cockroach\exceptions\RuntimeException;
 use cockroach\extensions\EArray;
+use cockroach\extensions\EUpstream;
 
 /**
  * Class Micro
@@ -23,6 +24,14 @@ use cockroach\extensions\EArray;
  */
 class Micro extends Cockroach
 {
+    /**
+     * @var array
+     * @datetime 2019/10/2 11:36 AM
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public $servers = [];
+
     /**数据中心
      * @var string
      * @datetime 2019/10/2 10:42 AM
@@ -37,7 +46,7 @@ class Micro extends Cockroach
      * @author roach
      * @email jhq0113@163.com
      */
-    public $node        = "";
+    public $node;
 
     /**服务名称
      * @var string
@@ -45,7 +54,7 @@ class Micro extends Cockroach
      * @author roach
      * @email jhq0113@163.com
      */
-    public $name        = "";
+    public $name;
 
     /**lan地址
      * @var string
@@ -53,7 +62,7 @@ class Micro extends Cockroach
      * @author roach
      * @email jhq0113@163.com
      */
-    public $address     = "";
+    public $address;
 
     /**wan地址，空字符串表示不支持
      * @var string
@@ -61,7 +70,7 @@ class Micro extends Cockroach
      * @author roach
      * @email jhq0113@163.com
      */
-    public $wan         = "";
+    public $wan;
 
     /**服务端口
      * @var int
@@ -85,7 +94,7 @@ class Micro extends Cockroach
      * @author roach
      * @email jhq0113@163.com
      */
-    public $protocol    = "";
+    public $protocol;
 
     /**方法列表
      * @var array
@@ -103,7 +112,8 @@ class Micro extends Cockroach
      */
     protected $_defaultProtocolList = [
       'swoole-boot' => [
-          'class' => 'cockroach\client\SwooleBoot'
+          'class'       => 'cockroach\client\SwooleBoot',
+          'serializeId' => '2'
       ]
     ];
 
@@ -114,14 +124,6 @@ class Micro extends Cockroach
      * @email jhq0113@163.com
      */
     public $useWan = false;
-
-    /**调用前校验func是否存在
-     * @var bool
-     * @datetime 2019/10/2 11:14 AM
-     * @author roach
-     * @email jhq0113@163.com
-     */
-    public $validateFunc = true;
 
     /**
      * @var array
@@ -148,8 +150,20 @@ class Micro extends Cockroach
     public function init($config = [])
     {
         parent::init($config);
-
         $this->protocolList = EArray::merge($this->_defaultProtocolList, $this->protocolList);
+    }
+
+    /**选择服务器,根据Ip使用一致性哈希算法
+     * @param array $servers
+     * @return array
+     * @datetime 2019/10/2 11:44 AM
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    protected function _selectServer($servers)
+    {
+        $field = $this->useWan ? 'wan' : 'address';
+        return EUpstream::consistentHash($servers,$field);
     }
 
     /**
@@ -163,6 +177,11 @@ class Micro extends Cockroach
     {
         if(!is_null($this->_client)) {
             return $this->_client;
+        }
+
+        if(!isset($this->protocol) && !empty($this->servers)) {
+            $config = $this->_selectServer($this->servers);
+            $this->assemInsure($config);
         }
 
         if(!isset($this->protocolList[ $this->protocol ])) {
@@ -182,21 +201,23 @@ class Micro extends Cockroach
     }
 
     /**
-     * @param string $func
+     * @param string $funcName
      * @param array  $params
      * @return mixed
      * @throws ConfigException
      * @throws RuntimeException
-     * @datetime 2019/10/2 11:15 AM
+     * @datetime 2019/10/2 12:13 PM
      * @author roach
      * @email jhq0113@163.com
      */
-    public function call($func,$params = [])
+    public function call($funcName,$params = [])
     {
-        if($this->validateFunc && !isset($this->funcs[ $func ])) {
-            throw new RuntimeException("函数[{$func}]未注册");
+        $client = $this->_client();
+
+        if(!isset($this->funcs[ $funcName ]['route'])) {
+            throw new RuntimeException("函数[{$funcName}]未注册");
         }
 
-        return $this->_client()->call($func, $params);
+        return $client->call($this->funcs[ $funcName ]['route'], $params);
     }
 }

@@ -13,7 +13,7 @@
 ```json
 {
     "require":{
-        "cockroach/cockroach" : "*"
+        "cockroach/cockroach" : "1.*"
     }
 }
 ```
