@@ -214,10 +214,16 @@ class Micro extends Cockroach
     {
         $client = $this->_client();
 
-        if(!isset($this->funcs[ $funcName ]['route'])) {
+        if(!isset($this->funcs[ $funcName ])) {
             throw new RuntimeException("函数[{$funcName}]未注册");
         }
 
-        return $client->call($this->funcs[ $funcName ]['route'], $params);
+        if(is_string($this->funcs[ $funcName ])) {
+            $this->funcs[ $funcName ] = empty($this->funcs[ $funcName ]) ? [] : json_decode($this->funcs[ $funcName ],true);
+        }
+
+        $route = $this->funcs[ $funcName ]['route'] ?? $funcName;
+
+        return $client->call($route, $params);
     }
 }
