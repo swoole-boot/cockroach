@@ -50,6 +50,43 @@ class Redis extends Cache
             return 0
 LUA;
 
+    /**
+     * 限流脚本
+     */
+    const TRAFFIC_SCRIPT = <<<LUA
+        --限速key
+        local key         = ARGV[1]
+
+        --限速阈值
+        local limit       = ARGV[2]
+        limit             = tonumber(limit)
+
+        --要求前十个字节是unix时间戳
+        local microTimeId = ARGV[3]
+        local time        = tonumber(string.sub(microTimeId, 1, 10))
+
+        --时间区间
+        local zone        = tonumber(ARGV[4])
+
+        local length = redis.call("LLEN", key)
+        if length < limit then
+            redis.call("LPUSH", key, microTimeId)
+            redis.call("EXPIRE", key, zone + 1)
+            return 1
+        else
+            local endId    = redis.call("LINDEX", key, limit - 1)
+            local timespan = time - tonumber(string.sub(endId, 1, 10))
+            if timespan >= zone then
+                redis.call("LPUSH", key, microTimeId)
+                redis.call("EXPIRE", key, zone + 1)
+                redis.call("RPOP", key)
+                return 1
+            else
+                return 0
+            end
+        end
+LUA;
+
 
     /**
      * @return \Redis|null
@@ -166,12 +203,31 @@ LUA;
      * @author roach
      * @email jhq0113@163.com
      */
-    public function unlock($key,$token,\Redis $redis = null)
+    public function unlock($key, $token, \Redis $redis = null)
     {
         $redis = is_null($redis) ? $this->_client() : $redis;
 
         $hash = $redis->script('load',self::UNLOCK_SCRIPT);
         return $redis->evalSha($hash,[ $key, $token ],1);
+    }
+
+    /**限流，返回token字符串表示未达到limit,否则超限
+     * @param string       $key            限流相关key
+     * @param int          $limit          限流数量
+     * @param int          $timezone       限流时间区间，默认
+     * @param \Redis|null $redis
+     * @return mixed|void
+     * @datetime 2019/10/17 18:38
+     * @author roach
+     * @email jhq0113@163.com
+     */
+    public function traffic($key, $limit, $timezone, \Redis $redis = null)
+    {
+        $redis = is_null($redis) ? $this->_client() : $redis;
+
+        $token = (microtime(true) * 1000).EString::createRandStr(7);
+        $hash = $redis->script('load', self::TRAFFIC_SCRIPT);
+        return $redis->evalSha($hash, [$key, $limit, $token, $timezone], 0);
     }
 
     /**
