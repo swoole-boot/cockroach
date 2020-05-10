@@ -26,7 +26,8 @@
     "ext-bcmath": "*",
     "ext-igbinary": "*",
     "ext-msgpack": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-pdo": "*"
   },
   "require-dev": {
   },
