@@ -216,6 +216,7 @@ class Connection extends Cockroach
          }
 
          if($this->_transactionLevel > 0) {
+             $this->_transactionLevel++;
              return true;
          }
 
