@@ -13,7 +13,7 @@ use cockroach\log\Driver;
  * @author   roach
  * @email    jhq0113@163.com
  */
-abstract class Connection extends Cockroach
+class Connection extends Cockroach
 {
     /**是否为只读库
      * @var bool
